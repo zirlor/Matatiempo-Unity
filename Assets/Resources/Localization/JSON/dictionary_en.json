@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "1.0",
+  "language": "en",
+  "languageName": "English",
+  "progression": {
+    "type": "exponential",
+    "formula": "2^(n-1)",
+    "description": "The number of words per level grows exponentially: Level 1 = 1, Level 2 = 2, Level 3 = 4, Level N = 2^(N-1)"
+  },
+  "levels": [
+    {
+      "level": 1,
+      "words": [
+        { "word": "sun", "clue": "I shine in the sky every day, and you wait for me each morning." }
+      ]
+    },
+    {
+      "level": 2,
+      "words": [
+        { "word": "sea", "clue": "Huge and blue, my waves caress the sand." },
+        { "word": "light", "clue": "I fill the rooms when night falls." }
+      ]
+    },
+    {
+      "level": 3,
+      "words": [
+        { "word": "house", "clue": "I have doors and windows, and a roof to shelter you." },
+        { "word": "cat", "clue": "I meow, chase mice and purr in the sun." },
+        { "word": "rain", "clue": "I fall from the sky in drops that water the fields." },
+        { "word": "sky", "clue": "Birds fly in me and stars shine in me." }
+      ]
+    },
+    {
+      "level": 4,
+      "words": [
+        { "word": "mountain", "clue": "A land rise with a snowy peak you climb with effort." },
+        { "word": "mirror", "clue": "I give you back your reflection every time you look at me." },
+        { "word": "journey", "clue": "A trip you take from one place to another." },
+        { "word": "heart", "clue": "An organ that beats nonstop and symbolizes love." },
+        { "word": "window", "clue": "Light comes through me to see the outside." },
+        { "word": "star", "clue": "Bright point in the sky that guides you at night." },
+        { "word": "path", "clue": "The trail you follow to reach your destination." },
+        { "word": "drum", "clue": "A percussion instrument that sounds with rhythm and force." }
+      ]
+    },
+    {
+      "level": 5,
+      "words": [
+        { "word": "butterfly", "clue": "Born from a cocoon, I fly with colorful wings." },
+        { "word": "library", "clue": "A place full of books and endless knowledge." },
+        { "word": "lightning", "clue": "A bright flash that crosses the sky during the storm." },
+        { "word": "trumpet", "clue": "A metal wind instrument with a brilliant sound." },
+        { "word": "almanac", "clue": "A calendar with dates, holidays and yearly data." },
+        { "word": "crystal", "clue": "Transparent and clear like spring water." },
+        { "word": "skeleton", "clue": "The frame of bones that supports your body." },
+        { "word": "farmer", "clue": "A person who raises crops and livestock in the countryside." },
+        { "word": "humility", "clue": "The virtue of knowing your limits with simplicity." },
+        { "word": "winter", "clue": "The cold season when it snows and temperature drops." },
+        { "word": "gardener", "clue": "Takes care of flowers and plants with care and soil on hands." },
+        { "word": "luminous", "clue": "That gives off or receives a lot of light." },
+        { "word": "cashew", "clue": "A small sweet half-moon shaped fruit, also called anacardo." },
+        { "word": "narrator", "clue": "Tells stories and gives voice to tales." },
+        { "word": "oceanographer", "clue": "A scientist who studies the seas and oceans." },
+        { "word": "paradigm", "clue": "A model or example that serves as a reference." }
+      ]
+    }
+  ]
+}

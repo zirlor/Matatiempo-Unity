@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "1.0",
+  "language": "fr",
+  "languageName": "Français",
+  "progression": {
+    "type": "exponential",
+    "formula": "2^(n-1)",
+    "description": "Le nombre de mots par niveau croît de manière exponentielle : Niveau 1 = 1, Niveau 2 = 2, Niveau 3 = 4, Niveau N = 2^(N-1)"
+  },
+  "levels": [
+    {
+      "level": 1,
+      "words": [
+        { "word": "soleil", "clue": "Je brille dans le ciel le jour et tu m'attends chaque matin." }
+      ]
+    },
+    {
+      "level": 2,
+      "words": [
+        { "word": "mer", "clue": "Immense et bleue, mes vagues caressent le sable." },
+        { "word": "lumière", "clue": "J'éclaire les pièces quand la nuit tombe." }
+      ]
+    },
+    {
+      "level": 3,
+      "words": [
+        { "word": "maison", "clue": "J'ai des portes et des fenêtres, et un toit pour t'abriter." },
+        { "word": "chat", "clue": "Je miaule, je chasse les souris et je ronronne au soleil." },
+        { "word": "pluie", "clue": "Je tombe du ciel en gouttes qui arrosent les champs." },
+        { "word": "ciel", "clue": "Les oiseaux y volent et les étoiles y brillent." }
+      ]
+    },
+    {
+      "level": 4,
+      "words": [
+        { "word": "montagne", "clue": "Élévation de terre au sommet enneigé que tu gravis avec effort." },
+        { "word": "miroir", "clue": "Je te rends ton reflet chaque fois que tu te regardes en moi." },
+        { "word": "chemin", "clue": "Cette voie que tu parcours pour arriver à destination." },
+        { "word": "cœur", "clue": "Un organe qui bat sans arrêt et symbolise l'amour." },
+        { "word": "fenêtre", "clue": "Par moi entre la lumière et l'on voit l'extérieur." },
+        { "word": "étoile", "clue": "Point brillant dans le ciel qui guide la nuit." },
+        { "word": "vacance", "clue": "Période de repos loin du travail, souvent en été." },
+        { "word": "tambour", "clue": "Instrument de percussion qui résonne avec rythme et force." }
+      ]
+    },
+    {
+      "level": 5,
+      "words": [
+        { "word": "papillon", "clue": "Né d'un cocon, il vole avec des ailes colorées." },
+        { "word": "bibliothèque", "clue": "Un lieu rempli de livres et de savoir infini." },
+        { "word": "éclair", "clue": "Éclat brillant qui traverse le ciel pendant l'orage." },
+        { "word": "trompette", "clue": "Instrument à vent en métal au son brillant." },
+        { "word": "almanach", "clue": "Calendrier avec les dates, le calendrier des saints et les données de l'année." },
+        { "word": "cristallin", "clue": "Transparent et clair comme l'eau d'une source." },
+        { "word": "squelette", "clue": "L'ensemble des os qui soutient ton corps." },
+        { "word": "fermier", "clue": "Personne qui élève des troupeaux à la campagne." },
+        { "word": "humilité", "clue": "Vertu de celui qui reconnaît ses limites avec simplicité." },
+        { "word": "hiver", "clue": "Saison froide où il neige et la température baisse." },
+        { "word": "jardinier", "clue": "Prend soin des fleurs et des plantes avec soin et les mains dans la terre." },
+        { "word": "lumineux", "clue": "Qui émet ou reçoit beaucoup de lumière." },
+        { "word": "anacarde", "clue": "Fruit doux en forme de demi-lune, aussi appelé noix de cajou." },
+        { "word": "narratrice", "clue": "Elle raconte des histoires et donne voix aux récits." },
+        { "word": "océanographe", "clue": "Scientifique qui étudie les mers et les océans." },
+        { "word": "paradigme", "clue": "Modèle ou exemple qui sert de référence." }
+      ]
+    }
+  ]
+}

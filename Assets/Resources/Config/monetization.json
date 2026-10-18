@@ -1,0 +1,10 @@
+{
+  "enabled": true,
+  "provider": "levelplay",
+  "appKey": "2804f574d",
+  "rewardedAdUnitId": "5zjcfzq5np5mj6qg",
+  "bannerAdUnitId": "1ji3b1u6hnzj923l",
+  "interstitialAdUnitId": "5zz05thtll04u9ui",
+  "nativeAdUnitId": "ruwvfvozips0nfe0",
+  "rewardCooldownSeconds": 60.0
+}

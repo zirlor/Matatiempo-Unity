@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "1.0",
+  "language": "pt",
+  "languageName": "Português",
+  "progression": {
+    "type": "exponential",
+    "formula": "2^(n-1)",
+    "description": "O número de palavras por nível cresce exponencialmente: Nível 1 = 1, Nível 2 = 2, Nível 3 = 4, Nível N = 2^(N-1)"
+  },
+  "levels": [
+    {
+      "level": 1,
+      "words": [
+        { "word": "sol", "clue": "Brilha no céu durante o dia e você me espera toda manhã." }
+      ]
+    },
+    {
+      "level": 2,
+      "words": [
+        { "word": "mar", "clue": "Imenso e azul, minhas ondas acariciam a areia." },
+        { "word": "luz", "clue": "Ilumino os cômodos quando a noite cai." }
+      ]
+    },
+    {
+      "level": 3,
+      "words": [
+        { "word": "casa", "clue": "Tenho portas e janelas, e um teto para te abrigar." },
+        { "word": "gato", "clue": "Mio, caço ratos e ronrono ao sol." },
+        { "word": "chuva", "clue": "Caio do céu em gotas que regam os campos." },
+        { "word": "céu", "clue": "Os pássaros voam em mim e as estrelas brilham." }
+      ]
+    },
+    {
+      "level": 4,
+      "words": [
+        { "word": "montanha", "clue": "Elevação de terra com pico nevado que você escala com esforço." },
+        { "word": "espelho", "clue": "Devolvo seu reflexo toda vez que você se olha em mim." },
+        { "word": "palavra", "clue": "Conjunto de letras com significado; hoje sou seu desafio." },
+        { "word": "coração", "clue": "Órgão que bate sem parar e simboliza o amor." },
+        { "word": "janela", "clue": "Por mim entra a luz e se vê o exterior." },
+        { "word": "estrela", "clue": "Ponto brilhante no céu que guia à noite." },
+        { "word": "caminho", "clue": "Trilha que você percorre para chegar ao seu destino." },
+        { "word": "tambores", "clue": "Instrumentos de percussão que ressoam com ritmo e força." }
+      ]
+    },
+    {
+      "level": 5,
+      "words": [
+        { "word": "borboleta", "clue": "Nascida de um casulo, voa com asas coloridas." },
+        { "word": "biblioteca", "clue": "Um lugar cheio de livros e conhecimento infinito." },
+        { "word": "relâmpago", "clue": "Clarão brilhante que cruza o céu durante a tempestade." },
+        { "word": "trompete", "clue": "Instrumento de sopro de metal com som brilhante." },
+        { "word": "almanaque", "clue": "Calendário com datas, santos e dados do ano." },
+        { "word": "cristalino", "clue": "Transparente e claro como a água de uma nascente." },
+        { "word": "esqueleto", "clue": "Estrutura de ossos que sustenta o seu corpo." },
+        { "word": "fazendeiro", "clue": "Pessoa que cria rebanhos no campo." },
+        { "word": "humildade", "clue": "Virtude de quem reconhece seus limites com simplicidade." },
+        { "word": "inverno", "clue": "Estação fria em que neva e a temperatura cai." },
+        { "word": "jardineiro", "clue": "Cuida de flores e plantas com esmero e terra nas mãos." },
+        { "word": "luminoso", "clue": "Que emite ou recebe muita luz." },
+        { "word": "caju", "clue": "Fruto doce em forma de meia-lua, também chamado de anacardo." },
+        { "word": "narradora", "clue": "Conta histórias e dá voz aos relatos." },
+        { "word": "oceanógrafo", "clue": "Cientista que estuda os mares e oceanos." },
+        { "word": "paradigma", "clue": "Modelo ou exemplo que serve de referência." }
+      ]
+    }
+  ]
+}

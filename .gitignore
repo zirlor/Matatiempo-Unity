@@ -1,0 +1,55 @@
+# Unity
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+*.pidb
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+*.vs/
+.vs/
+*.unityproj
+*.csproj
+*.booproj
+*.pidb.meta
+*.pdb.meta
+*.mdb.meta
+*.opendb.meta
+*.VC.db.meta
+*.vs.meta
+*.unityproj.meta
+*.csproj.meta
+*.booproj.meta
+[Ll]ibrary-*/
+[Tt]emp-*/
+[Oo]bj-*/
+[Bb]uild-*/
+[Bb]uilds-*/
+[Ll]ogs-*/
+*.クラッシュ
+*.mdmp
+sysinfo.txt
+*.apk
+*.aab
+*.unitypackage
+*.app
+*.unitypackage.meta
+*.app.meta
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Firebase hosting local
+firebase.json
+hosting/
