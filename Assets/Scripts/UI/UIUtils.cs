@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -23,6 +24,10 @@ namespace Matatiempo.UI
 
         private static readonly Vector2 PaperShadowOffset = new Vector2(2f, -2f);
         private static readonly Color PaperShadowColor = new Color(0.24f, 0.17f, 0.08f, 0.30f);
+
+        // --- Cache de sprites para evitar Resources.Load repetidos ---
+        private static readonly Dictionary<string, Sprite> _spriteCache =
+            new Dictionary<string, Sprite>();
 
         public static RectTransform CreateRect(string name, Transform parent, Vector2 anchorMin, Vector2 anchorMax, Vector2 offsetMin, Vector2 offsetMax)
         {
@@ -87,13 +92,16 @@ namespace Matatiempo.UI
             return text;
         }
 
-        public static Button CreateButton(string name, Transform parent, string label, int fontSize, Color color, Vector2 anchorMin, Vector2 anchorMax, Vector2 offsetMin, Vector2 offsetMax, UnityAction onClick)
+        public static Button CreateButton(string name, Transform parent, string label, int fontSize, Color color, Vector2 anchorMin, Vector2 anchorMax, Vector2 offsetMin, Vector2 offsetMax, UnityAction onClick = null)
         {
             RectTransform rect = CreateRect(name, parent, anchorMin, anchorMax, offsetMin, offsetMax);
             var image = rect.gameObject.AddComponent<Image>();
             image.color = color;
             var button = rect.gameObject.AddComponent<Button>();
-            button.onClick.AddListener(onClick);
+            if (onClick != null)
+            {
+                button.onClick.AddListener(onClick);
+            }
             AddClickSound(button);
             ApplyPaperButton(image);
             AddPaperShadow(rect.gameObject);
@@ -102,13 +110,16 @@ namespace Matatiempo.UI
             return button;
         }
 
-        public static Button CreateCenteredButton(string name, Transform parent, string label, int fontSize, Vector2 position, Vector2 size, UnityAction onClick)
+        public static Button CreateCenteredButton(string name, Transform parent, string label, int fontSize, Vector2 position, Vector2 size, UnityAction onClick = null)
         {
             RectTransform rect = CreateCenteredRect(name, parent, position, size);
             var image = rect.gameObject.AddComponent<Image>();
             image.color = PrimaryColor;
             var button = rect.gameObject.AddComponent<Button>();
-            button.onClick.AddListener(onClick);
+            if (onClick != null)
+            {
+                button.onClick.AddListener(onClick);
+            }
             AddClickSound(button);
             ApplyPaperButton(image);
             AddPaperShadow(rect.gameObject);
@@ -123,7 +134,7 @@ namespace Matatiempo.UI
             {
                 return;
             }
-            Sprite sprite = Resources.Load<Sprite>(resourcePath);
+            Sprite sprite = LoadSprite(resourcePath);
             if (sprite == null)
             {
                 return;
@@ -138,7 +149,7 @@ namespace Matatiempo.UI
             {
                 return;
             }
-            Sprite sprite = Resources.Load<Sprite>(PaperButtonRound);
+            Sprite sprite = LoadSprite(PaperButtonRound);
             if (sprite != null)
             {
                 image.sprite = sprite;
@@ -152,7 +163,7 @@ namespace Matatiempo.UI
             {
                 return;
             }
-            Sprite sprite = Resources.Load<Sprite>(PaperKey);
+            Sprite sprite = LoadSprite(PaperKey);
             if (sprite != null)
             {
                 image.sprite = sprite;
@@ -178,15 +189,49 @@ namespace Matatiempo.UI
             return shadow;
         }
 
+        // Delegate único reutilizado por todos los botones → cero allocations.
+        // Antes se usaba una lambda anónima por botón, lo que creaba una clase
+        // closure + delegate instance en cada CreateButton/CreateCenteredButton.
+        private static readonly UnityAction _playClickAction = PlayClick;
+
+        private static void PlayClick()
+        {
+            if (AudioManager.Instance != null)
+            {
+                AudioManager.Instance.PlayClick();
+            }
+        }
+
         private static void AddClickSound(Button button)
         {
-            button.onClick.AddListener(() =>
+            button.onClick.AddListener(_playClickAction);
+        }
+
+        // --- Cache de sprites ---
+        public static Sprite LoadSprite(string resourcePath)
+        {
+            if (string.IsNullOrEmpty(resourcePath))
             {
-                if (AudioManager.Instance != null)
-                {
-                    AudioManager.Instance.PlayClick();
-                }
-            });
+                return null;
+            }
+            if (_spriteCache.TryGetValue(resourcePath, out Sprite cached))
+            {
+                return cached;
+            }
+            Sprite sprite = Resources.Load<Sprite>(resourcePath);
+            if (sprite != null)
+            {
+                _spriteCache.Add(resourcePath, sprite);
+            }
+            return sprite;
+        }
+
+        /// <summary>
+        /// Lava el cache de sprites. Útil al recargar assets en modo editor.
+        /// </summary>
+        public static void ClearSpriteCache()
+        {
+            _spriteCache.Clear();
         }
     }
 }

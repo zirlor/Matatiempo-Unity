@@ -117,7 +117,7 @@ namespace Matatiempo.UI
                 string spritePath = GetStepSpritePath(i);
                 if (!string.IsNullOrEmpty(spritePath))
                 {
-                    stepSprite = Resources.Load<Sprite>(spritePath);
+                    stepSprite = UIUtils.LoadSprite(spritePath);
                 }
                 if (stepSprite != null)
                 {

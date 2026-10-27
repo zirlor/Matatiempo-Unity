@@ -94,9 +94,8 @@ namespace Matatiempo.UI
             ApplyResult();
         }
 
-        public override void Rebuild()
+        public override void RefreshLocalization()
         {
-            base.Rebuild();
             ApplyResult();
         }
 

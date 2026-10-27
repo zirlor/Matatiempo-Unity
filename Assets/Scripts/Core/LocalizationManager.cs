@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -19,16 +20,34 @@ namespace Matatiempo.Core
 
         public string ActiveLanguage => _active != null ? _active.language : string.Empty;
 
+        /// <summary>
+        /// Disparado cuando el idioma activo cambia. Permite a las Views
+        /// refrescar textos localizados sin destruir el UI (ver View.RefreshLocalization).
+        /// </summary>
+        public event Action<string> LanguageChanged;
+
         public string GetText(string key)
         {
-            UIStringTable table = GetUiTable(_active != null ? _active.language : "es");
-            if (table != null && table.entries != null)
+            if (string.IsNullOrEmpty(key))
             {
-                for (int i = 0; i < table.entries.Length; i++)
+                return key;
+            }
+            UIStringTable table = GetUiTable(_active != null ? _active.language : "es");
+            if (table != null)
+            {
+                if (table.entriesLookup != null && table.entriesLookup.TryGetValue(key, out string value))
                 {
-                    if (table.entries[i] != null && table.entries[i].key == key)
+                    return value;
+                }
+                // Fallback: búsqueda lineal solo si el lookup no está poblado
+                if (table.entries != null)
+                {
+                    for (int i = 0; i < table.entries.Length; i++)
                     {
-                        return table.entries[i].value;
+                        if (table.entries[i] != null && table.entries[i].key == key)
+                        {
+                            return table.entries[i].value;
+                        }
                     }
                 }
             }
@@ -53,7 +72,12 @@ namespace Matatiempo.Core
             {
                 return false;
             }
-            _active = dictionary;
+            // Solo notificar si el idioma realmente cambió (evita rebuilds espúrios)
+            if (_active != dictionary)
+            {
+                _active = dictionary;
+                LanguageChanged?.Invoke(languageCode);
+            }
             return true;
         }
 
@@ -102,8 +126,29 @@ namespace Matatiempo.Core
             }
 
             UIStringTable table = LoadUiTable(languageCode);
+            BuildLookup(table);
             _uiTables[languageCode] = table;
             return table;
+        }
+
+        private static void BuildLookup(UIStringTable table)
+        {
+            if (table == null || table.entries == null)
+            {
+                return;
+            }
+            if (table.entriesLookup == null)
+            {
+                table.entriesLookup = new Dictionary<string, string>(table.entries.Length);
+            }
+            for (int i = 0; i < table.entries.Length; i++)
+            {
+                UIStringEntry entry = table.entries[i];
+                if (entry != null && !string.IsNullOrEmpty(entry.key))
+                {
+                    table.entriesLookup[entry.key] = entry.value;
+                }
+            }
         }
 
         private static UIStringTable LoadUiTable(string languageCode)
@@ -130,6 +175,8 @@ namespace Matatiempo.Core
     {
         public string language;
         public UIStringEntry[] entries;
+        [System.NonSerialized]
+        public Dictionary<string, string> entriesLookup;
     }
 
     [System.Serializable]

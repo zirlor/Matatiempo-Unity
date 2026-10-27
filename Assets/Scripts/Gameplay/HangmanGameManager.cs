@@ -18,14 +18,9 @@ namespace Matatiempo.Gameplay
         public int RemainingGuesses => MaxBadGuesses - BadGuesses;
         public bool IsSolved { get; private set; }
 
-        public bool IsLetterGuessed(char letter)
-        {
-            string normalized = Normalize(letter.ToString());
-            return normalized.Length > 0 && _guessedLetters.Contains(normalized);
-        }
-
         private readonly HashSet<int> _revealedIndexes = new HashSet<int>();
-        private readonly HashSet<string> _guessedLetters = new HashSet<string>();
+        private readonly HashSet<char> _guessedLetters = new HashSet<char>();
+        private char[] _normalizedWord;
 
         private void Awake()
         {
@@ -60,6 +55,7 @@ namespace Matatiempo.Gameplay
             IsSolved = false;
             _revealedIndexes.Clear();
             _guessedLetters.Clear();
+            _normalizedWord = NormalizeWord(TargetWord);
             RefreshDisplay();
         }
 
@@ -69,9 +65,8 @@ namespace Matatiempo.Gameplay
             {
                 return;
             }
-
-            string normalizedLetter = Normalize(letter.ToString());
-            if (normalizedLetter.Length == 0)
+            char normalizedLetter = NormalizeLetter(letter);
+            if (normalizedLetter == '\0')
             {
                 return;
             }
@@ -82,13 +77,13 @@ namespace Matatiempo.Gameplay
             _guessedLetters.Add(normalizedLetter);
 
             bool found = false;
-            for (int i = 0; i < TargetWord.Length; i++)
+            for (int i = 0; i < _normalizedWord.Length; i++)
             {
                 if (_revealedIndexes.Contains(i))
                 {
                     continue;
                 }
-                if (Normalize(TargetWord[i].ToString()) == normalizedLetter)
+                if (_normalizedWord[i] == normalizedLetter)
                 {
                     _revealedIndexes.Add(i);
                     found = true;
@@ -115,6 +110,12 @@ namespace Matatiempo.Gameplay
                     GameEvents.NotifyWordFailed(TargetWord);
                 }
             }
+        }
+
+        public bool IsLetterGuessed(char letter)
+        {
+            char normalized = NormalizeLetter(letter);
+            return normalized != '\0' && _guessedLetters.Contains(normalized);
         }
 
         private bool IsFullyRevealed()
@@ -147,13 +148,16 @@ namespace Matatiempo.Gameplay
             DisplayWord = builder.ToString();
         }
 
+        /// <summary>
+        /// Normaliza un string completo (mantiene compatibilidad estática).
+        /// Usado externamente; internamente se prefiere NormalizeWord/NormalizeLetter para evitar allocations.
+        /// </summary>
         public static string Normalize(string value)
         {
             if (string.IsNullOrEmpty(value))
             {
                 return value;
             }
-
             var builder = new StringBuilder(value.Length);
             foreach (char character in value.Normalize(NormalizationForm.FormD))
             {
@@ -164,6 +168,55 @@ namespace Matatiempo.Gameplay
                 }
             }
             return builder.ToString();
+        }
+
+        /// <summary>
+        /// Normaliza un carácter individual a su forma base minúscula sin allocations.
+        /// Devuelve '\0' si el carácter no es una letra válida.
+        /// Usa un mapeo explícito para el alfabeto español (incluye ñ, vocales acentuadas, ü).
+        /// </summary>
+        public static char NormalizeLetter(char letter)
+        {
+            switch (letter)
+            {
+                case 'á': case 'Á': return 'a';
+                case 'é': case 'É': return 'e';
+                case 'í': case 'Í': return 'i';
+                case 'ó': case 'Ó': return 'o';
+                case 'ú': case 'Ú': return 'u';
+                case 'à': case 'À': return 'a';
+                case 'è': case 'È': return 'e';
+                case 'ì': case 'Ì': return 'i';
+                case 'ò': case 'Ò': return 'o';
+                case 'ù': case 'Ù': return 'u';
+                case 'ñ': case 'Ñ': return 'n';
+                case 'ü': case 'Ü': return 'u';
+                case 'ç': case 'Ç': return 'ç';
+                default:
+                    if (letter >= 'A' && letter <= 'Z') return (char)(letter + 32);
+                    if (letter >= 'a' && letter <= 'z') return letter;
+                    if (letter >= '0' && letter <= '9') return letter;
+                    if (char.IsWhiteSpace(letter)) return letter;
+                    return '\0';
+            }
+        }
+
+        /// <summary>
+        /// Pre-normaliza una palabra completa a un char[].
+        /// Se llama una sola vez en Setup(), evitando allocations durante el gameplay.
+        /// </summary>
+        private static char[] NormalizeWord(string word)
+        {
+            if (string.IsNullOrEmpty(word))
+            {
+                return new char[0];
+            }
+            char[] result = new char[word.Length];
+            for (int i = 0; i < word.Length; i++)
+            {
+                result[i] = NormalizeLetter(word[i]);
+            }
+            return result;
         }
     }
 }

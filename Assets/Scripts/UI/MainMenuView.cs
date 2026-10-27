@@ -13,6 +13,8 @@ namespace Matatiempo.UI
         private int _maxLevel;
         private MainMenuUIManager _manager;
         private LevelSelectionUI _levelSelection;
+        private TextMeshProUGUI _subtitleText;
+        private TextMeshProUGUI _hintText;
         private TextMeshProUGUI _consentStateLabel;
         private InstructionsModal _instructionsModal;
 
@@ -40,6 +42,25 @@ namespace Matatiempo.UI
             _manager.Initialize(modal, livesText, settingsButton, closeButton);
             BuildConsentModal(root);
             BuildInstructionsModal(root);
+        }
+
+        public override void RefreshLocalization()
+        {
+            if (_subtitleText != null)
+            {
+                _subtitleText.text = LocalizationManager.Instance.GetText("subtitle");
+            }
+            if (_hintText != null)
+            {
+                _hintText.text = LocalizationManager.Instance.GetText("hint");
+            }
+            if (_consentStateLabel != null)
+            {
+                _consentStateLabel.text = LocalizationManager.Instance.GetText(
+                    MonetizationManager.GetConsent() ? "consent_enabled" : "consent_disabled");
+            }
+            // Refrescar labels de nivel con el nuevo idioma (reutiliza botones existentes)
+            RebuildLevels();
         }
 
         private TextMeshProUGUI BuildTopHud(RectTransform root, out Button settingsButton)
@@ -143,8 +164,8 @@ namespace Matatiempo.UI
             if (IsLandscape)
             {
                 UIUtils.CreateCenteredText("Title", root, "MATATIEMPO", 96, UIUtils.TextColor, new Vector2(0, 280), new Vector2(900, 120));
-                UIUtils.CreateCenteredText("Subtitle", root, LocalizationManager.Instance.GetText("subtitle"), 52, UIUtils.PrimaryColor, new Vector2(0, 180), new Vector2(700, 80));
-                UIUtils.CreateCenteredText("Hint", root, LocalizationManager.Instance.GetText("hint"), 30, UIUtils.TextColor, new Vector2(0, 110), new Vector2(900, 60));
+                _subtitleText = UIUtils.CreateCenteredText("Subtitle", root, LocalizationManager.Instance.GetText("subtitle"), 52, UIUtils.PrimaryColor, new Vector2(0, 180), new Vector2(700, 80));
+                _hintText = UIUtils.CreateCenteredText("Hint", root, LocalizationManager.Instance.GetText("hint"), 30, UIUtils.TextColor, new Vector2(0, 110), new Vector2(900, 60));
 
                 _levelGridRect = UIUtils.CreateCenteredRect("LevelGrid", root, new Vector2(0, -70), new Vector2(900, 140));
                 _levelGrid = _levelGridRect.gameObject.AddComponent<GridLayoutGroup>();
@@ -158,8 +179,8 @@ namespace Matatiempo.UI
             else
             {
                 UIUtils.CreateCenteredText("Title", root, "MATATIEMPO", 46, UIUtils.TextColor, new Vector2(0, 430), new Vector2(410, 66));
-                UIUtils.CreateCenteredText("Subtitle", root, LocalizationManager.Instance.GetText("subtitle"), 26, UIUtils.PrimaryColor, new Vector2(0, 388), new Vector2(360, 38));
-                UIUtils.CreateCenteredText("Hint", root, LocalizationManager.Instance.GetText("hint"), 18, UIUtils.TextColor, new Vector2(0, 352), new Vector2(410, 34));
+                _subtitleText = UIUtils.CreateCenteredText("Subtitle", root, LocalizationManager.Instance.GetText("subtitle"), 26, UIUtils.PrimaryColor, new Vector2(0, 388), new Vector2(360, 38));
+                _hintText = UIUtils.CreateCenteredText("Hint", root, LocalizationManager.Instance.GetText("hint"), 18, UIUtils.TextColor, new Vector2(0, 352), new Vector2(410, 34));
 
                 _levelGridRect = UIUtils.CreateCenteredRect("LevelGrid", root, new Vector2(0, 10), new Vector2(410, 300));
                 _levelGrid = _levelGridRect.gameObject.AddComponent<GridLayoutGroup>();
@@ -256,19 +277,14 @@ namespace Matatiempo.UI
             string[] languages = { "es", "en", "pt", "fr" };
             for (int i = 0; i < codes.Length; i++)
             {
-                int index = i;
-                Button button = UIUtils.CreateCenteredButton($"Lang_{codes[i]}", parent, codes[i], fontSize, Vector2.zero, new Vector2(buttonWidth, buttonHeight), () => SelectLanguage(languages[index]));
+                // Handler sin allocations (antes: closure () => SelectLanguage(languages[index]))
+                Button button = UIUtils.CreateCenteredButton($"Lang_{codes[i]}", parent, codes[i], fontSize, Vector2.zero, new Vector2(buttonWidth, buttonHeight), null);
+                var langHandler = button.gameObject.AddComponent<LanguageButtonHandler>();
+                langHandler.SetLanguage(languages[i]);
+                button.onClick.AddListener(langHandler.OnClick);
                 LayoutElement element = button.gameObject.AddComponent<LayoutElement>();
                 element.preferredWidth = buttonWidth;
                 element.preferredHeight = buttonHeight;
-            }
-        }
-
-        private void SelectLanguage(string languageCode)
-        {
-            if (LocalizationManager.Instance.SetLanguage(languageCode) && UIManager.Instance != null)
-            {
-                UIManager.Instance.RebuildAllViews();
             }
         }
 
@@ -424,15 +440,25 @@ namespace Matatiempo.UI
             {
                 return;
             }
-            for (int i = _levelGridRect.childCount - 1; i >= 0; i--)
-            {
-                Object.Destroy(_levelGridRect.GetChild(i).gameObject);
-            }
             _maxLevel = ResolveMaxLevel();
             _levelGrid.constraintCount = IsLandscape ? _maxLevel : 2;
             float cellWidth = IsLandscape ? 150f : 190f;
             float cellHeight = IsLandscape ? 100f : 82f;
             int fontSize = IsLandscape ? 32 : 24;
+
+            // Reutilizar botones existentes si el número de niveles no cambió
+            int existingCount = _levelGridRect.childCount;
+            if (existingCount == _maxLevel)
+            {
+                RefreshLevelButtons(fontSize, cellWidth, cellHeight);
+                return;
+            }
+
+            // Número de niveles cambió: destruir y recrear
+            for (int i = existingCount - 1; i >= 0; i--)
+            {
+                Object.Destroy(_levelGridRect.GetChild(i).gameObject);
+            }
             Button[] levelButtons = new Button[_maxLevel];
             for (int level = 1; level <= _maxLevel; level++)
             {
@@ -443,6 +469,48 @@ namespace Matatiempo.UI
                 });
             }
             _levelSelection.ApplyLevels(levelButtons);
+        }
+
+        private void RefreshLevelButtons(int fontSize, float cellWidth, float cellHeight)
+        {
+            // Actualizar texto, tamaño y callbacks de los botones de nivel existentes
+            // sin destruirlos (evita GC).
+            for (int i = 0; i < _levelGridRect.childCount; i++)
+            {
+                Transform child = _levelGridRect.GetChild(i);
+                Button button = child.GetComponent<Button>();
+                if (button == null)
+                {
+                    continue;
+                }
+                int level = i + 1;
+                TextMeshProUGUI label = button.targetGraphic != null
+                    ? button.targetGraphic.GetComponent<TextMeshProUGUI>()
+                    : child.Find("Label")?.GetComponent<TextMeshProUGUI>();
+                if (label == null && child.childCount > 0)
+                {
+                    label = child.GetChild(0).GetComponent<TextMeshProUGUI>();
+                }
+                if (label != null)
+                {
+                    label.text = string.Format(LocalizationManager.Instance.GetText("level_format"), level);
+                    label.fontSize = fontSize;
+                }
+                RectTransform rt = child.GetComponent<RectTransform>();
+                if (rt != null)
+                {
+                    rt.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, cellWidth);
+                    rt.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, cellHeight);
+                }
+                // Reasignar callback para el nivel correcto
+                button.onClick.RemoveAllListeners();
+                int captured = level;
+                button.onClick.AddListener(() =>
+                {
+                    if (AudioManager.Instance != null) AudioManager.Instance.PlayClick();
+                    GameManager.Instance.StartLevel(captured);
+                });
+            }
         }
     }
 }

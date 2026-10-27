@@ -269,19 +269,28 @@ namespace Matatiempo.UI
                 return;
             }
 
-            _levelText.text = string.Format(LocalizationManager.Instance.GetText("level_format"), GameManager.Instance.CurrentLevel);
-            _timerText.text = TimerManager.Instance != null ? string.Format(LocalizationManager.Instance.GetText("time_format"), TimerManager.Instance.RemainingSeconds) : string.Empty;
+            // Cachear singletons y evaluar IsSolved una sola vez (no 28x en el loop de teclas)
+            LocalizationManager localization = LocalizationManager.Instance;
+            HangmanGameManager hangman = HangmanGameManager.Instance;
+            _levelText.text = string.Format(localization.GetText("level_format"), GameManager.Instance.CurrentLevel);
+            _timerText.text = TimerManager.Instance != null ? string.Format(localization.GetText("time_format"), TimerManager.Instance.RemainingSeconds) : string.Empty;
 
-            if (HangmanGameManager.Instance != null)
+            if (hangman != null)
             {
-                _wordText.text = HangmanGameManager.Instance.DisplayWord;
-                _livesText.text = string.Format(LocalizationManager.Instance.GetText("attempts_format"), HangmanGameManager.Instance.RemainingGuesses);
-                SetFigureStage(HangmanGameManager.Instance.BadGuesses);
+                _wordText.text = hangman.DisplayWord;
+                _livesText.text = string.Format(localization.GetText("attempts_format"), hangman.RemainingGuesses);
+                SetFigureStage(hangman.BadGuesses);
+                bool solved = hangman.IsSolved;
                 foreach (KeyValuePair<char, Button> pair in _keys)
                 {
-                    pair.Value.interactable = !HangmanGameManager.Instance.IsSolved && !HangmanGameManager.Instance.IsLetterGuessed(pair.Key);
+                    pair.Value.interactable = !solved && !hangman.IsLetterGuessed(pair.Key);
                 }
             }
+        }
+
+        public override void RefreshLocalization()
+        {
+            ApplyGameState();
         }
 
         private void BuildFigure(RectTransform root, Vector2 figurePosition, Vector2 figureSize)
@@ -345,20 +354,16 @@ namespace Matatiempo.UI
                 {
                     char letter = keys[i];
                     float x = startX + i * (keyWidth + spacing);
-                    Button button = UIUtils.CreateCenteredButton($"Key_{letter}", keyboard, letter.ToString(), fontSize, new Vector2(x, y), new Vector2(keyWidth, keyHeight), () =>
-                    {
-                        PressKey(letter);
-                    });
+                    Button button = UIUtils.CreateCenteredButton($"Key_{letter}", keyboard, letter.ToString(), fontSize, new Vector2(x, y), new Vector2(keyWidth, keyHeight), null);
+                    // Handler sin allocations (antes: closure () => PressKey(letter))
+                    var keyHandler = button.gameObject.AddComponent<KeyButtonHandler>();
+                    keyHandler.SetKey(letter);
+                    button.onClick.AddListener(keyHandler.OnClick);
                     UIUtils.ApplyPaperKey(button.image);
                     UIUtils.AddPaperShadow(button.gameObject);
                     _keys.Add(char.ToUpperInvariant(letter), button);
                 }
             }
-        }
-
-        private void PressKey(char letter)
-        {
-            HangmanGameManager.Instance.Guess(letter);
         }
 
         private void HandleWordStarted(string word)

@@ -14,6 +14,11 @@ namespace Matatiempo.Gameplay
 
         private Coroutine _tickRoutine;
 
+        // Cacheado: evita allocations de WaitForSeconds por segundo.
+        // WaitForSecondsRealtime no se ve afectado por timeScale; el pause se gestiona
+        // deteniendo la corrutina vía HandleStateChanged.
+        private static readonly WaitForSecondsRealtime _waitOneSecond = new WaitForSecondsRealtime(1f);
+
         private void Awake()
         {
             if (Instance != null && Instance != this)
@@ -66,15 +71,20 @@ namespace Matatiempo.Gameplay
 
         private void HandleStateChanged(GameState previous, GameState current)
         {
-            if (current == GameState.MainMenu)
+            // Detener el timer al pausar o al volver al menú
+            if (current == GameState.Paused || current == GameState.MainMenu)
             {
                 StopCountdown();
             }
-            else if (previous == GameState.MainMenu && current == GameState.Paused && !IsRunning && RemainingSeconds > 0)
+            // Reanudar el timer al reanudar desde pausa (Playing <- Paused)
+            else if (previous == GameState.Paused && current == GameState.Playing)
             {
-                IsRunning = true;
-                GameEvents.NotifyTimeChanged(RemainingSeconds, TotalSeconds);
-                _tickRoutine = StartCoroutine(Tick());
+                if (RemainingSeconds > 0)
+                {
+                    IsRunning = true;
+                    GameEvents.NotifyTimeChanged(RemainingSeconds, TotalSeconds);
+                    _tickRoutine = StartCoroutine(Tick());
+                }
             }
         }
 
@@ -102,7 +112,7 @@ namespace Matatiempo.Gameplay
         {
             while (RemainingSeconds > 0)
             {
-                yield return new WaitForSeconds(1f);
+                yield return _waitOneSecond;
                 RemainingSeconds--;
                 GameEvents.NotifyTimeChanged(RemainingSeconds, TotalSeconds);
             }

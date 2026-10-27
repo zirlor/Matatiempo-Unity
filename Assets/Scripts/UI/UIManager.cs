@@ -35,6 +35,7 @@ namespace Matatiempo.UI
             _landscape = View.IsLandscape;
             ApplyReferenceResolution();
             GameEvents.StateChanged += HandleStateChanged;
+            LocalizationManager.Instance.LanguageChanged += HandleLanguageChanged;
             HandleStateChanged(GameState.MainMenu, GameManager.Instance.State);
         }
 
@@ -46,7 +47,7 @@ namespace Matatiempo.UI
                 ApplyReferenceResolution();
                 RebuildAllViews();
             }
-            if (Time.unscaledTime - _lastLivesPoll >= 1f)
+            if (Time.unscaledTime - _lastLivesPoll >= 2f)
             {
                 _lastLivesPoll = Time.unscaledTime;
                 LivesManager.GetLives();
@@ -70,6 +71,10 @@ namespace Matatiempo.UI
             if (Instance == this)
             {
                 GameEvents.StateChanged -= HandleStateChanged;
+            }
+            if (LocalizationManager.Instance != null)
+            {
+                LocalizationManager.Instance.LanguageChanged -= HandleLanguageChanged;
             }
         }
 
@@ -137,6 +142,22 @@ namespace Matatiempo.UI
             _menuView.gameObject.SetActive(current == GameState.MainMenu);
             _gameView.gameObject.SetActive(current == GameState.Playing || current == GameState.Paused);
             _resultView.gameObject.SetActive(result);
+        }
+
+        private void HandleLanguageChanged(string languageCode)
+        {
+            RefreshLocalization();
+        }
+
+        /// <summary>
+        /// Refresca textos localizados de todas las views SIN destruir el UI.
+        /// Se dispara vía LocalizationManager.LanguageChanged (cambio de idioma).
+        /// </summary>
+        public void RefreshLocalization()
+        {
+            _menuView.RefreshLocalization();
+            _gameView.RefreshLocalization();
+            _resultView.RefreshLocalization();
         }
     }
 }

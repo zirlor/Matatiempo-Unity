@@ -96,7 +96,7 @@ namespace Matatiempo.UI
 
         public void UpdateLives(int lives)
         {
-            int current = LivesManager.AddLives(0);
+            int current = LivesManager.GetLives();
             if (livesText != null)
             {
                 livesText.text = string.Format(LocalizationManager.Instance.GetText("lives_format"), current);

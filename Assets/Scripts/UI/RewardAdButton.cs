@@ -59,13 +59,32 @@ namespace Matatiempo.UI
                 gate.Refresh();
             }
 
+            private void OnEnable()
+            {
+                GameEvents.StateChanged += HandleStateChanged;
+                // Refrescar inmediatamente cuando el gate vuelve a estar activo
+                _nextPoll = 0f;
+            }
+
+            private void OnDisable()
+            {
+                GameEvents.StateChanged -= HandleStateChanged;
+            }
+
+            private void HandleStateChanged(GameState previous, GameState current)
+            {
+                // El estado del juego puede afectar la disponibilidad del botón (ej: cooldown)
+                Refresh();
+            }
+
             private void Update()
             {
-                if (Time.unscaledTime < _nextPoll)
+                // Solo hacer polling si el GameObject está activo y no acabamos de refrescar
+                if (!gameObject.activeInHierarchy || Time.unscaledTime < _nextPoll)
                 {
                     return;
                 }
-                _nextPoll = Time.unscaledTime + 0.5f;
+                _nextPoll = Time.unscaledTime + 1f;
                 Refresh();
             }
 

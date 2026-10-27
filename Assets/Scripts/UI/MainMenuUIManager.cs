@@ -52,7 +52,6 @@ namespace Matatiempo.UI
         public void UpdateLivesDisplay(int currentLives)
         {
             int lives = Mathf.Min(LivesManager.MaxLives, Mathf.Max(0, currentLives));
-            PlayerPrefs.SetInt(LivesKey, lives);
             if (livesText != null)
             {
                 livesText.text = "x" + lives;
